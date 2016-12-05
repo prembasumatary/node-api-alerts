@@ -4,6 +4,14 @@ var desktopOrders = require('./desktopOrders.js');
 var transactionsDrop = require('./transactions_drop.js');
 var transactionsDrop_woking = require('./transaction_drop_woking.js');
 var transactionsDrop_jubilee = require('./transaction_drop_jubilee.js');
+var productSearchApi = require('./productSearchApi.js');
+var getProductBySku = require('./getProductBySku.js');
+var getProductsInCategory = require('./getProductsInCategory.js');
+var getBasket = require('./getBasket.js');
+var avgResponseTime = require('./avgResponseTime.js');
+var diffAvgResponseTime = require('./diffAvgResponseTime.js');
+var pageDrop = require('./pageDrop.js');
+var getProducts = require('./getProducts.js');
 
 //now call all
 jetty();
@@ -12,3 +20,11 @@ desktopOrders();
 transactionsDrop();
 transactionsDrop_woking();
 transactionsDrop_jubilee();
+productSearchApi();
+getProductBySku();
+getProductsInCategory();
+getBasket();
+avgResponseTime();
+diffAvgResponseTime();
+pageDrop();
+getProducts();

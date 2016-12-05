@@ -31,7 +31,7 @@ function checkIfTransactionsDropped(resultSet){
   var previousCount = resultSet.previous.results[0].count; 
   console.log("current count - " + currentCount + " vs previous count - " + previousCount);
   var log_message = "The alert condition of drop in Transaction Limit was triggered -<br/><br/>";
-  log_message = log_message + "<br/>current count - " + currentCount + " vs previous count - " + previousCount + ".";
+  log_message = log_message + "<br/>current tranaction count - " + currentCount + " vs previous transaction count - " + previousCount + ".";
   var variance = ((previousCount - currentCount) / previousCount) * 100;
   if(variance > ERROR_THRESHOLD) {
     console.log("Transactions has dropped by " + variance);
