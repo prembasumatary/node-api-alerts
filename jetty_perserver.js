@@ -14,7 +14,6 @@ function checkForThreadsInEachServer(){
       'X-Api-Key':'5df10b4c67bab668003902bd8d2ccc40'
     }
 }, function(error, response, body) {
-    assert(response.statusCode, 200, "Something unexpected happened, ignore this monitor.");
 
     if (!error && response.statusCode == 200) {
       var responseObject = JSON.parse(body); 
