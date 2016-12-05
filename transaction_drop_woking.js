@@ -6,7 +6,7 @@ var log_message = "The alert condition of drop in Transaction Limit in WOKING wa
 
 var NRQL = "select count(*) from Transaction WHERE appName='OneJL Browse (Live)' and (host='ulvjecpl04.johnlewis.co.uk' OR host='ulvjecpl06.johnlewis.co.uk' OR host='ulvjecpl08.johnlewis.co.uk') since 5 minutes ago COMPARE WITH 5 minutes ago";
 
-function checkTransactions(){
+function checkTransactionsInWoking(){
   request({
   url: 'https://insights-api.newrelic.com/v1/accounts/1075077/query',
     headers: {
@@ -56,7 +56,7 @@ function isAlertsPeriodSilent(){
 function _execute(){
     console.log("starting the execution of transactions_drop_woking.js...");
     setInterval(function () {
-        checkForThreadsInEachServer();
+        checkTransactionsInWoking();
     }, 300000);
 }
 

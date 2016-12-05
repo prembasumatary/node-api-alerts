@@ -56,7 +56,7 @@ function isAlertsPeriodSilent(){
 function _execute(){
     console.log("starting the execution of Transactions_drop_jubilee.js...");
     setInterval(function () {
-        checkForThreadsInEachServer();
+        checkTransactions();
     }, 300000);
 }
 
