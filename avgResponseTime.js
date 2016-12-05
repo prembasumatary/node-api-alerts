@@ -47,7 +47,7 @@ function isAlertsPeriodSilent(){
 }
 
 function _execute(){
-    console.log("starting the execution of error500.js...");
+    console.log("starting the execution of avgResponseTime.js...");
     setInterval(function () {
         checkAverageTime();
     }, 300000);

@@ -75,7 +75,7 @@ function addMinutes(date, minutes) {
 }
 
 function _execute(){
-    console.log("starting the execution of error500.js...");
+    console.log("starting the execution of getProductsInCategory.js...");
     setInterval(function () {
         runHealthCheck();
     }, 300000);

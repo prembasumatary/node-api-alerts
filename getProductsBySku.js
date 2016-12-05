@@ -74,7 +74,7 @@ function addMinutes(date, minutes) {
 }
 
 function _execute(){
-    console.log("starting the execution of getProductBySku.js...");
+    console.log("starting the execution of getProductsBySku.js...");
     setInterval(function () {
         runHealthCheck();
     }, 300000);

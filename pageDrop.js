@@ -52,7 +52,7 @@ function isAlertsPeriodSilent(){
 }
 
 function _execute(){
-    console.log("starting the execution of error500.js...");
+    console.log("starting the execution of pageDrop.js...");
     setInterval(function () {
         checkPageViews();
     }, 300000);

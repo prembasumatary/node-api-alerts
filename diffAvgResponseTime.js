@@ -58,7 +58,7 @@ function isAlertsPeriodSilent(){
 }
 
 function _execute(){
-    console.log("starting the execution of error500.js...");
+    console.log("starting the execution of diffAvgResponseTime.js...");
     setInterval(function () {
         checkErrors500();
     }, 300000);
