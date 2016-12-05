@@ -1,5 +1,5 @@
 var request = require('request');
-var assert = require('assert');
+var mailsender = require('./mailsender.js');
 var ERROR_THRESHOLD = 40; //in percentage
 
 var NRQL = "select count(*) from Transaction WHERE appName='OneJL Browse (Live)' and (host='ulvjecpl04.johnlewis.co.uk' OR host='ulvjecpl06.johnlewis.co.uk' OR host='ulvjecpl08.johnlewis.co.uk') since 5 minutes ago COMPARE WITH 5 minutes ago";

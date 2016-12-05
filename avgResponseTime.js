@@ -15,7 +15,6 @@ function checkAverageTime(){
       'nrql': NRQL
     }
   }, function(error, response, body) {
-    assert.equal(response.statusCode, 200, 'unexpected error, ignore this monitor');
 
     if (!error && response.statusCode == 200) {
       var jsonObj = JSON.parse(body);

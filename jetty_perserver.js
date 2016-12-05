@@ -1,5 +1,4 @@
 var request = require('request');
-var assert = require('assert');
 var servers_with_errors_and_mesg = [];
 var ERROR_THRESHOLD = 130; //absolute
 /**

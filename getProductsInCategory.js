@@ -1,5 +1,4 @@
 var request = require('request');
-var assert = require('assert');
 var ERROR_THRESHOLD = 30; //calls per minute failure rate.
 
 function runHealthCheck(){
