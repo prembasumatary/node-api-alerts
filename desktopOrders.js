@@ -17,7 +17,7 @@ var windows = {
   midnight : 4, // 12 am - 1 am
   properties : {
     1 : {start : "6", end : "10", threshold : "30"},
-    2 : {start : "10", end : "22", threshold : "20"},
+    2 : {start : "10", end : "22", threshold : "30"},
     3 : {start : "22", end : "0", threshold : "40"},
     4 : {start : "0", end : "1", threshold : "70"}  
   }
