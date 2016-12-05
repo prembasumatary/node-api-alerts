@@ -1,5 +1,5 @@
 {
-  "name": "jlsynthetics",
+  "name": "1jl-alerts",
   "version": "1.0.0",
   "description": "jl alert system to replace synthetics",
   "main": "main.js",
