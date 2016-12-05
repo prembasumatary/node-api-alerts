@@ -31,7 +31,7 @@ function checkIfPageDropBreached(resultSet){
   console.log("current count - " + currentCount + " vs previous count - " + previousCount);
   var log_message = "The alert condition of 500 Errors Limit breached was triggered -<br/><br/>";
   var drop_in_count = ((previousCount - currentCount) / previousCount) * 100;
-  if(drop_in_count > 0) {
+  if(drop_in_count > ERROR_THRESHOLD) {
     //this will be positive if its actual drop otherwise negative to show an increase.
     console.log("page views has dropped by " + drop_in_count);
     log_message = log_message + "page views has dropped by " + drop_in_count + ".<br/>";
