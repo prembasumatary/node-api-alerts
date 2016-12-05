@@ -4,7 +4,7 @@ var ERROR_THRESHOLD = 25; //in percentage
 var NRQL = "select count(*) from PageView WHERE appName='OneJL Browse (Live)' since 5 minutes ago COMPARE WITH 5 minutes ago";
 
 function checkPageViews(){
-  $http.get({
+  request({
     url: 'https://insights-api.newrelic.com/v1/accounts/1075077/query',
     headers: {
       'Accept': 'application/json',

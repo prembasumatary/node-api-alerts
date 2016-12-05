@@ -1,6 +1,5 @@
 var request = require('request');
 var mailsender = require('./mailsender.js');
-//text to append to in case of issue raised
 var ERROR_THRESHOLD = 5.5; //in percentage
 var NRQL = "SELECT percentage(count(*), WHERE ( appName='OneJL Browse (Live)' AND ( httpResponseCode='500') )) FROM Transaction since 5 minutes ago";
 
