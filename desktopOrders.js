@@ -1,7 +1,6 @@
 var request = require('request');
 var mailsender = require('./mailsender.js');
 var ERROR_THRESHOLD = 30; //in percentage
-var log_message = "The alert condition of drop in Desktop Orders was triggered -<br/><br/>";
 //text to append to in case of issue raised
 
 var Bucket = function (_start, _end, _threshold){
@@ -53,6 +52,7 @@ function checkDesktopOrders(){
       var resultSet = JSON.parse(body);
       var currentCount = resultSet.current.results[0].uniqueCount;
       var previousCount = resultSet.previous.results[0].uniqueCount;
+      var log_message = "The alert condition of drop in Desktop Orders was triggered -<br/><br/>";
       log_message = log_message + "current order count - " + currentCount + " vs previous order count - " + previousCount+".";
       console.log("current order count - " + currentCount + " vs previous order count - " + previousCount+".");
 
@@ -66,7 +66,7 @@ function checkDesktopOrders(){
         if(difference > threshold){
           console.log("Orders dropped with rate " + difference + " against a threshold value of " + threshold);
           log_message = log_message + "<br/>Orders dropped with rate " + difference + " against a threshold value of " + threshold+".<br/>";
-          triggerAlert("Incident Raised - Desktop Orders Drop Limit Breached: Raise P3 Inc [Callout:JLWEBSUPP]", difference, threshold);
+          triggerAlert("Incident Raised - Desktop Orders Drop Limit Breached: Raise P3 Inc [Callout:JLWEBSUPP]", difference, threshold, log_message);
         }
         //assert(-variance < threshold, "Orders drop should not below the threshold set, it is " + variance + " against threshold of " + threshold);
       }
@@ -105,12 +105,13 @@ function _execute(){
     console.log("starting the execution of desktopOrders.js...");
     setInterval(function () {
         checkDesktopOrders();
+        log_message = "The alert condition of drop in Desktop Orders was triggered -<br/><br/>";//reinitialise
     }, 300000);
 }
 
 module.exports = _execute;
 
-function triggerAlert(message, difference, threshold){
+function triggerAlert(message, difference, threshold, log_message){
   // $http.get({
    // url: 'http://98b58899.ngrok.io/message/'+encodeURI(message)
   //}, function(error, response, body) {

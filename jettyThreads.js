@@ -2,7 +2,6 @@ var request = require('request');
 var nodemailer = require('nodemailer');
 var mailsender = require('./mailsender.js');
 var ERROR_THRESHOLD = 130; //absolute
-var log_message = "The alert condition of drop in Jetty JVM threads was triggered -<br/><br/>";
 
 function checkJettyThreads(){
     var url = 'https://api.newrelic.com/v2/applications/21845346/metrics/data.json';
@@ -39,12 +38,13 @@ function checkIfErrorCountIsOk(response_object){
     metric_data.metrics.forEach(function(metric){
         metric.timeslices.forEach(function(slice){
             var threadCount = slice.values.max_value;
+            var log_message = "The alert condition of drop in Jetty JVM threads was triggered -<br/><br/>";
             log_message = log_message + "<br/>num threads - " + threadCount;
             console.log("num threads - " + threadCount);
             if(threadCount > ERROR_THRESHOLD){
                 console.log("threads count high, max count of threads - " + threadCount);
                 log_message = log_message + "<br/>threads count high, max count of threads - " + threadCount+".";
-                triggerAlert();
+                triggerAlert(log_message);
             }
             //assert(threadCount < ERROR_THRESHOLD, "JVM Thread Limit breached with max count as - " + threadCount);
         });
@@ -87,7 +87,7 @@ function _execute(){
 
 module.exports = _execute;
 
-function triggerAlert(){
+function triggerAlert(log_message){
 
     var subject = '1JL JVM Thread Count (All Servers) Breached: Raise P3 Inc [Callout:JLWEBSUPP]'
     var time_now = new Date();

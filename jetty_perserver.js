@@ -2,7 +2,6 @@ var request = require('request');
 var assert = require('assert');
 var servers_with_errors_and_mesg = [];
 var ERROR_THRESHOLD = 130; //absolute
-var log_message = "The alert condition of drop in Jetty JVM threads was triggered -<br/><br/>";
 /**
  * there is no api to get jmx threads for all instances as instanceId is required. so we'll get all instances
  * and then get jmx count for each instance and report errors.
@@ -64,8 +63,11 @@ function checkIfThreadCountIsOk(server){
                     var threadCount = slice.values.max_value;
                     if(threadCount > ERROR_THRESHOLD){
                         var mesg = "threads count high for server " + server.hostName + ", count of threads - " + threadCount;
+                        var log_message = "The alert condition of drop in Jetty JVM threads was triggered -<br/><br/>";
                         servers_with_errors_and_mesg.push(mesg);
                         log_message = log_message + "<br/>"+mesg;
+
+                        triggerAlert(log_message);
                     }
                 });
             });
@@ -109,7 +111,7 @@ function _execute(){
 
 module.exports = _execute;
 
-function triggerAlert(){
+function triggerAlert(log_message){
 
     var subject = '1JL JVM Thread Count (Per Server) Breached: Raise P3 Inc [Callout:JLWEBSUPP]'
     var time_now = new Date();

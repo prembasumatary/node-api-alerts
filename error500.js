@@ -1,6 +1,5 @@
 var request = require('request');
 var mailsender = require('./mailsender.js');
-var log_message = "The alert condition of 500 Errors Limit breached was triggered -<br/><br/>";
 //text to append to in case of issue raised
 var ERROR_THRESHOLD = 5.5; //in percentage
 var NRQL = "SELECT percentage(count(*), WHERE ( appName='OneJL Browse (Live)' AND ( httpResponseCode='500') )) FROM Transaction since 5 minutes ago";
@@ -23,9 +22,10 @@ function checkErrors500(){
       if(!isAlertsPeriodSilent()){
         var errorPercentage = jsonObj.results[0].result; 
         console.log("Error percentage - " + errorPercentage);
+        var log_message = "The alert condition of 500 Errors Limit breached was triggered -<br/><br/>";
         log_message = log_message + "<br/>" + "Error percentage - " + errorPercentage + ".";
         if(errorPercentage > ERROR_THRESHOLD){
-          triggerAlert();
+          triggerAlert(log_message);
         }
       }
     }
@@ -53,7 +53,7 @@ function _execute(){
 
 module.exports = _execute;
 
-function triggerAlert(){
+function triggerAlert(log_message){
   // $http.get({
    // url: 'http://98b58899.ngrok.io/message/'+encodeURI(message)
   //}, function(error, response, body) {

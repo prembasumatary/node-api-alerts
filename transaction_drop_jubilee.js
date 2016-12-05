@@ -1,8 +1,6 @@
 var request = require('request');
 var assert = require('assert');
 var ERROR_THRESHOLD = 40; //in percentage
-var log_message = "The alert condition of drop in Transaction Limit in Jubilee House was triggered -<br/><br/>";
-
 
 var NRQL = "select count(*) from Transaction WHERE appName='OneJL Browse (Live)' and (host='ulvjecpl03.johnlewis.co.uk' OR host='ulvjecpl05.johnlewis.co.uk' OR host='ulvjecpl07.johnlewis.co.uk' OR host='ulvjecpl09.johnlewis.co.uk') since 5 minutes ago COMPARE WITH 5 minutes ago";
 
@@ -32,12 +30,13 @@ function checkIfTransactionsDropped(resultSet){
   var currentCount = resultSet.current.results[0].count;
   var previousCount = resultSet.previous.results[0].count; 
   console.log("current count - " + currentCount + " vs previous count - " + previousCount);
+  var log_message = "The alert condition of drop in Transaction Limit in Jubilee House was triggered -<br/><br/>";
   log_message = log_message + "<br/>current count - " + currentCount + " vs previous count - " + previousCount + ".";
   var variance = ((previousCount - currentCount) / previousCount) * 100;
   if(variance > ERROR_THRESHOLD) {
     console.log("Transactions has dropped by " + variance);
     log_message = log_message + "Transactions has dropped by " + variance + ".";
-    triggerAlert();
+    triggerAlert(log_message);
   }
 }
 
@@ -62,7 +61,7 @@ function _execute(){
 
 module.exports = _execute;
 
-function triggerAlert(){
+function triggerAlert(log_message){
 
     var subject = '1JL Drop in Transaction Limit in Jubilee House Breached: Raise P3 Inc [Callout:JLWEBSUPP]'
     var time_now = new Date();
