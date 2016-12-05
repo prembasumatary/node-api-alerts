@@ -54,7 +54,7 @@ function checkDesktopOrders(){
       var currentCount = resultSet.current.results[0].uniqueCount;
       var previousCount = resultSet.previous.results[0].uniqueCount;
       log_message = log_message + "current order count - " + currentCount + " vs previous order count - " + previousCount+".";
-      console.log(log_message);
+      console.log("current order count - " + currentCount + " vs previous order count - " + previousCount+".");
 
       var difference = ((previousCount - currentCount) / previousCount) * 100;
       var date = new Date();
@@ -102,6 +102,7 @@ function getThresholdBasedOnTimeWindow(currentHour){
 }
 
 function _execute(){
+    console.log("starting the execution..");
     setInterval(function () {
         checkDesktopOrders();
     }, 300000);

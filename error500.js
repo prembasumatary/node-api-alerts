@@ -66,7 +66,7 @@ function triggerAlert(){
   //email fields
   var mailOptions = {
     from : 'John Lewis Alerts <alertsjl@gmail.com>', // sender address
-    to : ['prem.basumatary@johnlewis.co.uk'], // list of receivers
+    to : ['prem.basumatary@johnlewis.co.uk','satish.sathe@johnlewis.co.uk','thomas.dooley@johnlewis.co.uk','abhishek.agrawal@johnlewis.co.uk'], // list of receivers
     subject : subject,//subject
     text : '', //empty
     html : template//html body
