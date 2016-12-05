@@ -9,7 +9,7 @@ var log_message = "The alert condition of drop in Jetty JVM threads was triggere
  */
 
 function checkForThreadsInEachServer(){
-  $http.get({
+  request({
   url: 'https://api.newrelic.com/v2/applications/21845346/instances.json',
     headers: {
       'Accept': 'application/json',
@@ -101,6 +101,7 @@ function addMinutes(date, minutes) {
 }
 
 function _execute(){
+    console.log("starting the execution of jettyThreads_perServer.js...");
     setInterval(function () {
         checkForThreadsInEachServer();
     }, 300000);

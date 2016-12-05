@@ -54,6 +54,7 @@ function isAlertsPeriodSilent(){
 }
 
 function _execute(){
+    console.log("starting the execution of transactions_drop_woking.js...");
     setInterval(function () {
         checkForThreadsInEachServer();
     }, 300000);

@@ -79,6 +79,7 @@ function addMinutes(date, minutes) {
 }
 
 function _execute(){
+    console.log("starting the execution of jettyThreads.js...");
     setInterval(function () {
         checkJettyThreads();
     }, 300000);

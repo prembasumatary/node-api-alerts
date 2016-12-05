@@ -102,7 +102,7 @@ function getThresholdBasedOnTimeWindow(currentHour){
 }
 
 function _execute(){
-    console.log("starting the execution..");
+    console.log("starting the execution of desktopOrders.js...");
     setInterval(function () {
         checkDesktopOrders();
     }, 300000);

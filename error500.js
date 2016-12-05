@@ -45,6 +45,7 @@ function isAlertsPeriodSilent(){
 }
 
 function _execute(){
+    console.log("starting the execution of error500.js...");
     setInterval(function () {
         checkDesktopOrders();
     }, 300000);
