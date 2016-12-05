@@ -1,15 +1,8 @@
-var escape_html_entities = require('escape-html-in-json');
-var http = require('http');
+var request = require('request');
+var mailsender = require('./mailsender.js');
 var ERROR_THRESHOLD = 30; //in percentage
-
-//email fields
-var mailOptions = {
-    from : 'John Lewis Alerts <alertsjl@gmail.com>', // sender address
-    to : ['prem.basumatary@johnlewis.co.uk'], // list of receivers
-    subject : 'Desktop Orders Drop Limit Breached: Raise P3 Inc [Callout:JLWEBSUPP]',//subject
-    text : '', //empty
-    html : JSON.stringify(template)//html body
-};
+var log_message = "The alert condition of drop in Desktop Orders was triggered -<br/><br/>";
+//text to append to in case of issue raised
 
 var Bucket = function (_start, _end, _threshold){
   this.start = _start;
@@ -43,7 +36,8 @@ var not_busy = new Bucket(midnight_window.start, midnight_window.end, midnight_w
 var NRQL = "SELECT uniquecount(JSESSIONID) FROM PageView WHERE (pageUrl LIKE '%checkout/order-receipt%' OR pageUrl like '%checkout/receipt-page%') AND (serverId like 'b%' or serverId like 'c%' ) since 5 minutes ago COMPARE WITH 5 minutes ago";
 
 function checkDesktopOrders(){
-  $http.get({
+  
+  request({
   url: 'https://insights-api.newrelic.com/v1/accounts/1075077/query',
     headers: {
       'Accept': 'application/json',
@@ -51,23 +45,27 @@ function checkDesktopOrders(){
     },
     qs : {
       'nrql': NRQL
-    }
+    },
+    method : 'GET'
 }, function(error, response, body) {
   
     if (!error && response.statusCode == 200) {
       var resultSet = JSON.parse(body);
       var currentCount = resultSet.current.results[0].uniqueCount;
-      var previousCount = resultSet.previous.results[0].uniqueCount; 
-      console.log("current order count - " + currentCount + " vs previous order count - " + previousCount);
+      var previousCount = resultSet.previous.results[0].uniqueCount;
+      log_message = log_message + "current order count - " + currentCount + " vs previous order count - " + previousCount+".";
+      console.log(log_message);
 
       var difference = ((previousCount - currentCount) / previousCount) * 100;
       var date = new Date();
       var threshold = getThresholdBasedOnTimeWindow(date.getHours());
-      console.log("threshold for the current time period is " + threshold + " and variance is " + difference);
+      console.log("Threshold for the current time period is " + threshold + " and variance is " + difference);
+      log_message = log_message + "<br/>threshold for the current time period is " + threshold + " and the difference is " + difference+".";
       
       if(!isAlertsPeriodSilent()){
         if(difference < threshold){
-          console.log("orders dropped with rate " + difference + " against a threshold value of " + threshold);
+          console.log("Orders dropped with rate " + difference + " against a threshold value of " + threshold);
+          log_message = log_message + "<br/>Orders dropped with rate " + difference + " against a threshold value of " + threshold+".<br/>";
           triggerAlert("Incident Raised - Desktop Orders Drop Limit Breached: Raise P3 Inc [Callout:JLWEBSUPP]", difference, threshold);
         }
         //assert(-variance < threshold, "Orders drop should not below the threshold set, it is " + variance + " against threshold of " + threshold);
@@ -103,24 +101,33 @@ function getThresholdBasedOnTimeWindow(currentHour){
     }
 }
 
-function triggerAlert(message, difference, threshold){
- // $http.get({
-   // url: 'http://98b58899.ngrok.io/message/'+encodeURI(message)
-  //}, function(error, response, body) {
-   // console.log(response.statusCode);
-    //assert(difference < threshold, "Orders drop should not be below the threshold set, it is " + difference + " against threshold of " + threshold);
-  //})
-  mailsender.sendmail(mailOptions);
-}
-/*
 function _execute(){
     setInterval(function () {
         checkDesktopOrders();
     }, 300000);
 }
-*/
-checkDesktopOrders();
 
-//module.exports = _execute;
+module.exports = _execute;
 
-var template = '<div style="border-left:1px solid rgb(240,240,240);border-right:1px solid rgb(240,240,240)"><div style="border-left:1px solid rgb(235,235,235);border-right:1px solid rgb(235,235,235)"><div style="border-left:1px solid rgb(231,231,231);border-right:1px solid rgb(231,231,231)"><div style="border-left:1px solid rgb(226,226,226);border-right:1px solid rgb(226,226,226)"><div style="border-top:5px solid rgb(213,90,107)"></div><table style="width:100%;border-collapse:collapse;border-spacing:0;color:rgb(84,84,84);font-size:14px"><tbody><tr><td style="padding-top:25px;padding-bottom:25px;padding-left:25px;padding-right:25px"><img src="john-lewis-logo.gif" alt="New Relic" class="CToWUd" height="16" width="90"></td></tr><tr><td style="padding-top:0;padding-bottom:25px;padding-left:25px;padding-right:25px"><div><div><span>New Incident </span> opened at <script>document.write(new Date());</script></div></div></td></tr></tbody></table><div style="border-top:1px solid rgb(228,228,228)"></div><div style="border-top:1px solid rgb(233,233,233)"></div><div style="border-top:1px solid rgb(239,239,239)"></div><div style="border-top:1px solid rgb(244,244,244)"></div><div><div><table style="width:100%;border-collapse:collapse;border-spacing:0;color:rgb(84,84,84);background-color:rgb(242,242,242);border-bottom:1px solid rgb(234,234,234);white-space:nowrap"><tbody><tr><td style="padding-top:15px;padding-bottom:0;padding-left:25px;padding-right:25px"><div id="text" style="text-decoration:none;color:rgb(75,143,171)"><span style="font-size:130%;font-weight:bold;padding-top:10px;padding-bottom:0">Desktop Orders Drop Limit Breached: Raise P3 Inc [Callout:JLWEBSUPP]</span></div></td></tr><tr><td style="padding-top:10px;padding-bottom:10px;padding-left:25px;padding-right:25px;font-size:120%;white-space:normal"></td></tr></tbody></table></div></div><table style="width:100%;border-collapse:collapse;border-spacing:0;color:rgb(84,84,84);border-bottom:1px solid rgb(234,234,234)"><tbody><tr><td style="padding-top:25px;padding-bottom:25px;padding-left:25px;padding-right:25px;padding:20px 0px 20px 0px"><table style="width:300px;border-collapse:separate;border-spacing:10px;color:rgb(84,84,84)" align="center"><tbody><tr><td style="padding-top:25px;padding-bottom:25px;padding-left:25px;padding-right:25px;padding:8px 8px 8px 8px;text-align:center;white-space:nowrap;color:rgb(255,255,255)"><table style="width:100%;border-collapse:collapse;border-spacing:0;color:rgb(84,84,84)"><tbody><tr><td style="padding-top:25px;padding-bottom:25px;padding-left:25px;padding-right:25px;padding:0;text-align:center;white-space:nowrap;color:rgb(255,255,255);background-color:rgb(102,102,102);font-size:18px">Script Logs</td></tr></tbody></table></td><td style="padding-top:25px;padding-bottom:25px;padding-left:25px;padding-right:25px;padding:8px 8px 8px 8px;text-align:center;white-space:nowrap;color:rgb(255,255,255)"><table style="width:100%;border-collapse:collapse;border-spacing:0;color:rgb(84,84,84)"><tbody><tr></tr></tbody></table></td></tr></tbody></table></td></tr><tr><td style="padding-top:25px;padding-bottom:25px;padding-left:25px;padding-right:25px;padding-top:0px"><table style="width:100%;border-collapse:collapse;border-spacing:0;color:rgb(84,84,84);margin-bottom:20px"><tbody><tr style="background-color:rgb(242,242,242)"><td style="padding-top:10px;padding-bottom:10px;padding-left:25px;padding-right:25px;border-bottom:1px solid rgb(234,234,234);border-top:1px solid rgb(234,234,234);text-align:left;width:115px">Start/End</td><td style="padding-top:10px;padding-bottom:10px;padding-left:25px;padding-right:25px;border-bottom:1px solid rgb(234,234,234);border-top:1px solid rgb(234,234,234);text-align:left"><span><script>document.write(new Date());</script></span></td></tr><tr><td style="padding-top:10px;padding-bottom:10px;padding-left:25px;padding-right:25px;border-bottom:1px solid rgb(234,234,234);border-top:1px solid rgb(234,234,234);text-align:left;width:115px">Duration</td><td style="padding-top:10px;padding-bottom:10px;padding-left:25px;padding-right:25px;border-bottom:1px solid rgb(234,234,234);border-top:1px solid rgb(234,234,234);text-align:left">5 minute(s)</td></tr></tbody></table></td></tr></tbody></table><div><table style="width:100%;border-collapse:collapse;border-spacing:0;color:rgb(84,84,84);border-bottom:none"><tbody><tr><td style="padding-top:25px;padding-bottom:0;padding-left:25px;padding-right:25px"> <p style="margin-top:0;margin-bottom:10px"> <span>2</span> channels notified </p><table style="width:100%;border-collapse:collapse;border-spacing:0;color:rgb(84,84,84);margin-bottom:20px"><tbody><tr style="background-color:rgb(242,242,242)"><td style="padding-top:10px;padding-bottom:10px;padding-left:25px;padding-right:25px;border-bottom:1px solid rgb(234,234,234);border-top:1px solid rgb(234,234,234);text-align:left;width:115px">Email</td><td style="padding-top:10px;padding-bottom:10px;padding-left:25px;padding-right:25px;border-bottom:1px solid rgb(234,234,234);border-top:1px solid rgb(234,234,234);text-align:left"><a href="mailto:Jubilee_House_Operations_Bridge@johnlewis.co.uk" target="_blank">Jubilee_House_Operations_<wbr></wbr>Bridge@johnlewis.co.uk</a></td></tr><tr><td style="padding-top:10px;padding-bottom:10px;padding-left:25px;padding-right:25px;border-bottom:1px solid rgb(234,234,234);border-top:1px solid rgb(234,234,234);text-align:left;width:115px">Email</td><td style="padding-top:10px;padding-bottom:10px;padding-left:25px;padding-right:25px;border-bottom:1px solid rgb(234,234,234);border-top:1px solid rgb(234,234,234);text-align:left"><a href="mailto:z_jl_oas_website_front_office_support_team@johnlewis.co.uk" target="_blank">z_jl_oas_website_front_office_<wbr></wbr>support_team@johnlewis.co.uk</a></td></tr></tbody></table></td></tr></tbody></table></div><table style="width:100%;border-collapse:collapse;border-spacing:0;color:white;border-bottom:1px solid rgb(234,234,234);background-color:rgb(89,89,89)"></table></div></div></div></div>';
+function triggerAlert(message, difference, threshold){
+  // $http.get({
+   // url: 'http://98b58899.ngrok.io/message/'+encodeURI(message)
+  //}, function(error, response, body) {
+   // console.log(response.statusCode);
+    //assert(difference < threshold, "Orders drop should not be below the threshold set, it is " + difference + " against threshold of " + threshold);
+  //})
+  var subject = 'Desktop Orders Drop Limit Breached: Raise P3 Inc [Callout:JLWEBSUPP]';
+  var time_now = new Date();
+  var template = '<div><div><div><div><table><tbody><tr><td><img src="http://www.johnlewis.com/store/assets/header/john-lewis-logo.gif" alt="John Lewis" height="16" width="90"></td></tr><tr><td><div><span>New Incident </span> opened at '+time_now+'</div></td></tr></tbody></table><div></div><div></div><div></div><div></div><div><div><table style="width:100%;border-collapse:collapse;border-spacing:0;color:rgb(84,84,84);background-color:rgb(242,242,242);border-bottom:1px solid rgb(234,234,234);white-space:nowrap"><tbody><tr><td style="padding-top:15px;padding-bottom:0;padding-left:25px;padding-right:25px"><div id="text" style="text-decoration:none;color:red"><span style="font-size:130%;font-weight:bold;padding-top:10px;padding-bottom:0">'+subject+'</span></div></td></tr><tr><td style="padding-top:10px;padding-bottom:10px;padding-left:25px;padding-right:25px;font-size:120%;white-space:normal"></td></tr></tbody></table></div></div><table style="width:100%;border-collapse:collapse;border-spacing:0;color:rgb(84,84,84);border-bottom:1px solid rgb(234,234,234)"><tbody><tr><td style="padding-top:25px;padding-bottom:25px;padding-left:25px;padding-right:25px;padding:20px 0px 20px 0px"><table style="width:300px;border-collapse:separate;border-spacing:10px;color:rgb(84,84,84)" align="center"><tbody><tr><td style="padding-top:25px;padding-bottom:25px;padding-left:25px;padding-right:25px;padding:8px 8px 8px 8px;text-align:center;white-space:nowrap;color:rgb(255,255,255)"><table style="width:100%;border-collapse:collapse;border-spacing:0;color:rgb(84,84,84)"><tbody><tr><td style="padding-top:25px;padding-bottom:25px;padding-left:25px;padding-right:25px;padding:0;text-align:center;white-space:nowrap;font-size:18px">'+log_message+'</td></tr></tbody></table></td><td style="padding-top:25px;padding-bottom:25px;padding-left:25px;padding-right:25px;padding:8px 8px 8px 8px;text-align:center;white-space:nowrap;color:rgb(255,255,255)"><table style="width:100%;border-collapse:collapse;border-spacing:0;color:rgb(84,84,84)"><tbody><tr></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table><div><table style="width:100%;border-collapse:collapse;border-spacing:0;color:rgb(84,84,84);border-bottom:none"><tbody><tr><td style="padding-top:25px;padding-bottom:0;padding-left:25px;padding-right:25px"> <p style="margin-top:0;margin-bottom:10px">Channels notified </p><table style="width:100%;border-collapse:collapse;border-spacing:0;color:rgb(84,84,84);margin-bottom:20px"><tbody><tr style="background-color:rgb(242,242,242)"><td style="padding-top:10px;padding-bottom:10px;padding-left:25px;padding-right:25px;border-bottom:1px solid rgb(234,234,234);border-top:1px solid rgb(234,234,234);text-align:left;width:115px">Email</td><td style="padding-top:10px;padding-bottom:10px;padding-left:25px;padding-right:25px;border-bottom:1px solid rgb(234,234,234);border-top:1px solid rgb(234,234,234);text-align:left"><a href="mailto:Jubilee_House_Operations_Bridge@johnlewis.co.uk" target="_blank">Jubilee_House_Operations_<wbr></wbr>Bridge@johnlewis.co.uk</a></td></tr><tr><td style="padding-top:10px;padding-bottom:10px;padding-left:25px;padding-right:25px;border-bottom:1px solid rgb(234,234,234);border-top:1px solid rgb(234,234,234);text-align:left;width:115px">Email</td><td style="padding-top:10px;padding-bottom:10px;padding-left:25px;padding-right:25px;border-bottom:1px solid rgb(234,234,234);border-top:1px solid rgb(234,234,234);text-align:left"><a href="mailto:z_jl_oas_website_front_office_support_team@johnlewis.co.uk" target="_blank">z_jl_oas_website_front_office_<wbr></wbr>support_team@johnlewis.co.uk</a></td></tr></tbody></table></td></tr></tbody></table></div></div></div></div></div>';
+
+  //email fields
+  var mailOptions = {
+    from : 'John Lewis Alerts <alertsjl@gmail.com>', // sender address
+    to : ['prem.basumatary@johnlewis.co.uk'], // list of receivers
+    subject : subject,//subject
+    text : '', //empty
+    html : template//html body
+  };
+  
+  mailsender.sendmail(mailOptions);
+}
